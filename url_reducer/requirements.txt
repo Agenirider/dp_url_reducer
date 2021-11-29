@@ -1,0 +1,24 @@
+# Django
+Django~=3.2.8
+
+# WSGI
+gunicorn==20.1.0
+
+# DRF
+djangorestframework~=3.12.4
+
+# Redis client
+redis
+
+# Requests
+requests
+
+# SENTRY
+sentry-sdk
+
+# Mysql access
+mysqlclient
+
+# Celery
+celery
+

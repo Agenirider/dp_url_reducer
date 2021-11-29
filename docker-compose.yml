@@ -1,0 +1,142 @@
+version: "3.7"
+services:
+
+  mysql:
+    image: mysql:5.7.22
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    env_file: .env
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8 --collation-server=utf8_general_ci
+    volumes:
+        - mysql_data:/var/lib/mysql
+    expose:
+      - "3306"
+    networks:
+      - net
+
+  partners:
+    build: partners
+    env_file: .env
+    command: /bin/sh /code/entrypoint.sh
+    container_name: partners
+    restart: unless-stopped
+    volumes:
+       - static_data:/vol/web/static
+       - /etc/localtime:/etc/localtime:ro
+    expose:
+      - "8000"
+    depends_on:
+      - mysql
+    networks:
+      - net
+
+  proxy:
+    container_name: proxy
+    restart: unless-stopped
+    build:
+      context: ./proxy
+    volumes:
+      - static_data:/vol/web/static
+    expose:
+      - "8000"
+    depends_on:
+      - mysql
+      - partners
+    networks:
+      - net
+
+  redis:
+    container_name: redis
+    build:
+      context: ./redis
+    restart: always
+    volumes:
+    - ./storage/redis/data:/data
+    expose:
+      - "6379"
+    networks:
+      - net
+
+  celery-worker:
+    build: ./partners/
+    container_name: celery_worker
+    hostname: celery_worker
+    restart: always
+    env_file: .env
+    command: "celery --app partners worker -l INFO --pool=solo"
+    volumes:
+      - partners:/code/partners
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - partners
+      - mysql
+      - redis
+    networks:
+      - net
+
+  celery-beat:
+    build: ./partners/
+    container_name: celery_beat
+    hostname: celery_beat
+    restart: always
+    env_file: .env
+    command: "celery --app partners beat -l INFO -s /tmp/celerybeat-schedule"
+    volumes:
+      - partners:/code/partners
+      - /etc/localtime:/etc/localtime:ro
+    links:
+      - celery-worker
+    depends_on:
+      - partners
+      - mysql
+      - redis
+    networks:
+      - net
+
+  front:
+    container_name: front
+    build:
+      context: ./front
+      args:
+        - API_HOST=https://partners.iridium-russia.com
+        - NODE_ENV=production
+    expose:
+     - "7000"
+    restart: unless-stopped
+    depends_on:
+      - partners
+      - proxy
+      - mysql
+    networks:
+      - net
+
+  reverse_proxy:
+    container_name: reverse_proxy
+    build:
+      context: ./reverse_proxy
+    restart: unless-stopped
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    links:
+      - proxy
+    depends_on:
+      - partners
+      - proxy
+      - front
+    networks:
+      - net
+
+volumes:
+  mysql_data:
+  partners:
+  static_data:
+  docker_data:
+
+networks:
+  net:
+    driver: bridge
+
+
