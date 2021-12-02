@@ -15,11 +15,11 @@ services:
     networks:
       - net
 
-  partners:
-    build: partners
+  url_reducer:
+    build: url_reducer
     env_file: .env
     command: /bin/sh /code/entrypoint.sh
-    container_name: partners
+    container_name: url_reducer
     restart: unless-stopped
     volumes:
        - static_data:/vol/web/static
@@ -27,6 +27,7 @@ services:
     expose:
       - "8000"
     depends_on:
+      - redis
       - mysql
     networks:
       - net
@@ -41,8 +42,9 @@ services:
     expose:
       - "8000"
     depends_on:
+      - redis
       - mysql
-      - partners
+      - url_reducer
     networks:
       - net
 
@@ -59,36 +61,36 @@ services:
       - net
 
   celery-worker:
-    build: ./partners/
+    build: ./url_reducer/
     container_name: celery_worker
     hostname: celery_worker
     restart: always
     env_file: .env
-    command: "celery --app partners worker -l INFO --pool=solo"
+    command: "celery --app url_reducer worker -l INFO --pool=solo"
     volumes:
-      - partners:/code/partners
+      - url_reducer:/code/url_reducer
       - /etc/localtime:/etc/localtime:ro
     depends_on:
-      - partners
+      - url_reducer
       - mysql
       - redis
     networks:
       - net
 
   celery-beat:
-    build: ./partners/
+    build: ./url_reducer/
     container_name: celery_beat
     hostname: celery_beat
     restart: always
     env_file: .env
-    command: "celery --app partners beat -l INFO -s /tmp/celerybeat-schedule"
+    command: "celery --app url_reducer beat -l INFO -s /tmp/celerybeat-schedule"
     volumes:
-      - partners:/code/partners
+      - url_reducer:/code/url_reducer
       - /etc/localtime:/etc/localtime:ro
     links:
       - celery-worker
     depends_on:
-      - partners
+      - url_reducer
       - mysql
       - redis
     networks:
@@ -99,31 +101,31 @@ services:
     build:
       context: ./front
       args:
-        - API_HOST=https://partners.iridium-russia.com
+        - API_HOST=api.redirect.link
         - NODE_ENV=production
     expose:
      - "7000"
     restart: unless-stopped
     depends_on:
-      - partners
+      - url_reducer
       - proxy
       - mysql
     networks:
       - net
 
   reverse_proxy:
-    container_name: reverse_proxy
+    container_name: revers_proxy
     build:
-      context: ./reverse_proxy
+      context: ./revers_proxy
     restart: unless-stopped
     expose:
-      - "8080"
+      - "80"
     ports:
-      - "8080:8080"
+      - "80:80"
     links:
       - proxy
     depends_on:
-      - partners
+      - url_reducer
       - proxy
       - front
     networks:
@@ -131,7 +133,7 @@ services:
 
 volumes:
   mysql_data:
-  partners:
+  url_reducer:
   static_data:
   docker_data:
 

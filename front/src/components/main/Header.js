@@ -19,12 +19,16 @@ class Header extends Component {
           </div>
 
           <div className="header-navbar">
-              <div className={ location === 'urlform' ? "header-btn" : "header-btn-inactive"}>
-                    <Link to='/'>Список</Link>
-              </div>
-              <div className={ location === 'mainpage' ? "header-btn" : "header-btn-inactive"}>
-                    <Link to='/add'>Добавить</Link>
-              </div>
+              <Link to='/'>
+                  <div className={ location === 'urlform' ? "header-btn" : "header-btn-inactive"}>
+                    Список
+                  </div>
+              </Link>
+              <Link to='/add'>
+                  <div className={ location === 'mainpage' ? "header-btn" : "header-btn-inactive"}>
+                    Добавить
+                  </div>
+              </Link>
           </div>
         </div>
       </React.Fragment>

@@ -52,13 +52,14 @@ class MainPage extends Component {
       <span>Reduced URLs</span>
 
       <div className='dp-test-url-container'>
-        {reduced_urls && <ul>{ reduced_urls.res.map( e=> <li key={e.url}>
+        {reduced_urls && <ul>{ reduced_urls.res.map( e=> {  let url = `${e.domain}/${e.url}`;
+                                                            return <li key={e.url}>
                                                              <div>
-                                                                <div><b>{e.domain}/{e.url}</b> <GrLink/> {e.url_destination}
+                                                                <div><a href={url}>{url}</a> <GrLink/> {e.url_destination}
                                                                   <div onClick={() => delete_reduced_urls(e.id)}><AiFillDelete/></div></div>
                                                                 
                                                              </div>
-                                                          </li> )}
+                                                          </li>})}
                          </ul>}
         <table>
           <tbody>
@@ -84,7 +85,6 @@ class MainPage extends Component {
     </React.Fragment>)
   }
 }
-
 
 
 // connect state

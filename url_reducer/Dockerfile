@@ -27,7 +27,10 @@ RUN python3 -m pip install -r requirements.txt --no-cache-dir
 COPY . /code
 RUN chmod +x /code/* \
     && chmod 777 /code/entrypoint.sh \
-    && chmod 777 -R /code/partners_api
+    && chmod 777 -R /code/url_reducer \
+    && touch /code/url_reducer/debug.log \
+    && chmod 777 /code/url_reducer/debug.log
+
 
 # STATIC FILE SERVING
 RUN mkdir -p /vol/web/static \

@@ -8,7 +8,6 @@ def user_uuid_handler(request):
 
     """ Get exist user ID """
     user_id = request.COOKIES.get("dp_test_user_id", None)
-    print(user_id)
 
     """ Check user in DB - exists or not """
     try:

@@ -34,7 +34,6 @@ if not DEBUG:
         send_default_pii=True
     )
 
-
 if DEBUG:
     ALLOWED_HOSTS = ['*']
 else:
@@ -44,6 +43,8 @@ else:
         'test123.ru',
         'lalala.we',
         'blablabla.com',
+        'api.redirect.link',
+        'app.redirect.link'
     ]
 
 # Application definition
@@ -56,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sessions.backends.db',
+    'rest_framework',
     'reducer',
 ]
 
@@ -89,6 +91,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'url_reducer.wsgi.application'
 
+REDIS_HOST = 'redis'
+REDIS_PORT = 6379
+
+if DEBUG:
+    REDIS_HOST = 'localhost'
+
+# CELERY SETTINGS
+CELERY_TIMEZONE = 'Europe/Moscow'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_BROKER_URL = 'redis://' + REDIS_HOST + ':' + str(REDIS_PORT) + '/0'
+CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + str(REDIS_PORT) + '/0'
+
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -117,6 +132,50 @@ REDIS_PORT = 6379
 
 if not DEBUG:
     REDIS_HOST = 'redis'
+
+# CORS BLOCK
+CORS_ALLOW_ALL_ORIGINS = False
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'POST',
+    'GET',
+]
+#
+# CORS_ALLOW_HEADERS = [
+#     'Access-Control-Allow-Headers',
+#     'Access-Control-Allow-Credentials',
+#     'accept',
+#     'accept-encoding',
+#     'authorization',
+#     'content-type',
+#     'dnt',
+#     'origin',
+#     'user-agent',
+#     'x-csrftoken',
+#     'x-requested-with',
+#     'x-ijt',
+# ]
+# #
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r'http://localhost',
+    r"^http://redirect.link",
+]
+
+# if DEBUG:
+#     # add jetbrains debugging headers (module JavaScript Debug)
+#     from corsheaders.defaults import default_headers
+#
+#     CORS_ALLOW_HEADERS = default_headers + (
+#         'x-ijt',
+#    )
+
+CORS_ALLOWED_ORIGINS = [
+    "http://redirect.link",
+    "http://app.redirect.link",
+    "http://api.redirect.link",
+    "http://domain1.link",
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -168,3 +227,39 @@ STATICFILES_FINDERS = (
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            'format': '%(name)-12s %(levelname)-8s %(message)s'
+        },
+        'file': {
+            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'console'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'formatter': 'file',
+            'filename': os.path.join(BASE_DIR, 'url_reducer', 'debug.log')
+        }
+    },
+    'loggers': {
+        '': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'file'],
+            'propagate': True
+        },
+        'django.request': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'file']
+        }
+    }
+}

@@ -5,10 +5,8 @@ do
 done
 
 python manage.py migrate
+python manage.py ensure_admin
 python manage.py ensure_domains
-python manage.py test
-
-
 python manage.py collectstatic --noinput
 
-gunicorn -w 2 -b 0.0.0.0:8000 partners.wsgi --timeout 3600 --workers 3
+gunicorn -w 2 -b 0.0.0.0:8000 url_reducer.wsgi --timeout 3600 --workers 3

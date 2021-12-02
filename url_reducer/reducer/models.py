@@ -18,7 +18,7 @@ class Users(models.Model):
 
 
 class Domain(models.Model):
-    domain = models.CharField(max_length=200, null=False, unique=True)
+    domain = models.CharField(max_length=255, null=False, unique=True)
 
     class Meta:
         verbose_name = 'Domain'
@@ -33,15 +33,15 @@ class URLs(models.Model):
     domain = models.ForeignKey(Domain,
                                default=1,
                                on_delete=models.CASCADE)
-    url = models.CharField(max_length=200, null=False)
-    url_destination = models.CharField(max_length=500, null=True)
+    url = models.CharField(max_length=255, null=False)
+    url_destination = models.CharField(max_length=255, null=True)
     created = models.DateTimeField(default=timezone.now)
 
     class Meta:
         verbose_name = 'URL'
         verbose_name_plural = 'URLs'
 
-        unique_together = ['domain', 'url', 'url_destination']
+        unique_together = ['domain', 'url']
 
     def __str__(self):
         return self.domain.domain + '/' + self.url

@@ -24,8 +24,7 @@ module.exports = {
       historyApiFallback:{
           index:'index.html',
           rewrites: [
-            { from: /\/*/, to: '/index.html'},
-            { from: /\/login\/*/, to: '/index.html'},
+            { from: /\/*/, to: '/index.html'}
           ]
         },
       compress: true,

@@ -19,5 +19,4 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('url_reducer/', include('reducer.urls')),
-    path('', include('reducer.urls'))
 ]

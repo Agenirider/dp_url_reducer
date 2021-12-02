@@ -48,12 +48,12 @@ body, html {
   width: auto;
 }
 
-.header-btn:hover {
+a:hover {
   color: black;
   background-color: rgb(84, 84, 84);
 }
 
-.header div.header-navbar div {
+.header div.header-navbar a {
   text-decoration: none;
   color: white;
   padding: 10px;
@@ -62,13 +62,13 @@ body, html {
   height: 30px;
 }
 
-.header-btn a {
+.header-btn {
   cursor: pointer;
   text-decoration: none;
   color: rgb(60, 60, 60);
 }
 
-.header-btn-inactive a {
+.header-btn-inactive  {
   cursor: pointer;
   text-decoration: none;
   color: white
@@ -121,7 +121,7 @@ body, html {
   left: 30%;
   z-index: 1;
   width: 200px;
-  height: 100px;
+  height: 150px;
   text-align: center;
   border: 1px solid black;
   border-radius: 3px;

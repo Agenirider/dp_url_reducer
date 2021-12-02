@@ -5,16 +5,16 @@ import {
     SET_NETWORK_MESSAGE,
     SET_ONLOADING,
     SET_SHOW_NOTIFY_MODAL
-
 } from "./actionTypes";
 
 
 import BASE_URL from "../../config/config";
-const API_client = Axios.create({ timeout: 1200000 });
+const API_client = Axios.create()
 API_client.defaults.withCredentials = true;
 
 
 const api_interactions_interceptor = (dispatch) => {
+
     API_client.interceptors.request.use(
       (request) => {
         dispatch({ type: SET_ONLOADING, payload: true });
@@ -43,23 +43,20 @@ const api_interactions_interceptor = (dispatch) => {
         return Promise.reject(error);
       }
     );
-  };
-
-
+};
 
 export const get_reduced_urls = (page_num) => dispatch => {
     api_interactions_interceptor(dispatch)
-    API_client.get(`${BASE_URL}url_reducer/get_url/page=${page_num}`)
+    API_client.get(`http://${BASE_URL}/url_reducer/get_url/page=${page_num}`)
       .then((response) => {
           dispatch({ type: GET_REDUCED_URLS, payload: response.data });
       }
     );
-  }
-
+}
 
 export const delete_reduced_urls = (url_id) => dispatch => {
   api_interactions_interceptor(dispatch)
-  API_client.delete(`${BASE_URL}url_reducer/delete_url/${url_id}`)
+  API_client.delete(`http://${BASE_URL}/url_reducer/delete_url/${url_id}`)
     .then(() => {
         dispatch(get_reduced_urls(0));
     }
@@ -68,7 +65,7 @@ export const delete_reduced_urls = (url_id) => dispatch => {
 
 export const set_reduced_urls = (domain_id, url_custom, url_destination) => dispatch => {
   api_interactions_interceptor(dispatch)
-  API_client.post(`${BASE_URL}url_reducer/set_url`,
+  API_client.post(`http://${BASE_URL}/url_reducer/set_url`,
        { url_destination : url_destination,
          domain: domain_id,
          url: url_custom })
@@ -79,7 +76,6 @@ export const set_reduced_urls = (domain_id, url_custom, url_destination) => disp
     }
   );
 }
-
 
 export const set_show_notify_modal = (status) => dispatch => {
   dispatch({ type: SET_SHOW_NOTIFY_MODAL, payload: status })

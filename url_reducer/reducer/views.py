@@ -5,6 +5,9 @@ from datetime import timedelta
 
 import redis
 from django.conf import settings
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
+from django.template import TemplateDoesNotExist
 from reducer.models import URLs, Domain
 from rest_framework import status, serializers
 from rest_framework.decorators import api_view, permission_classes
@@ -19,14 +22,15 @@ def get_urls_cache_generator():
                                        db=0,
                                        socket_connect_timeout=1)
     is_connect = False
+    max_connect_attempts = 5
 
     while True:
 
-        if settings.DEBUG:
+        if not settings.DEBUG:
             try:
                 is_connect = redis_instance.ping()
 
-            except (ConnectionError, redis.exceptions.ConnectionError, redis.exceptions.TimeoutError):
+            except (ConnectionError, TimeoutError, redis.exceptions.ConnectionError, redis.exceptions.TimeoutError):
                 is_connect = False
 
         if is_connect:
@@ -53,7 +57,10 @@ def get_urls_cache_generator():
 
         else:
             time.sleep(2)
-            is_connect = redis_instance.ping()
+            max_connect_attempts -= 1
+
+            if max_connect_attempts == 0:
+                break
 
 
 def short_url_generator(url=None):
@@ -85,7 +92,10 @@ def short_url_generator(url=None):
 
 
 cashed_urls = get_urls_cache_generator()
-cashed_urls.send(None)
+try:
+    cashed_urls.send(None)
+except StopIteration:
+    cashed_urls = None
 
 
 class URLsSerializer(serializers.Serializer):
@@ -117,7 +127,11 @@ def set_url(request):
 
         url_destination = data.get('url_destination')
 
-        domain = Domain.objects.get(pk=data.get('domain'))
+        try:
+            domain = Domain.objects.get(pk=data.get('domain'))
+        except Domain.DoesNotExist:
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return response
 
         if generated_url:
             new_url = URLs(user_uuid=user,
@@ -126,11 +140,13 @@ def set_url(request):
                            url_destination=url_destination)
             new_url.save()
 
-            cashed_urls.send((generated_url, url_destination))
-            cashed_urls.send(())
+            if cashed_urls:
+                cashed_urls.send((generated_url, url_destination))
+                cashed_urls.send(())
 
             response.status_code = status.HTTP_200_OK
-            response.data = {'res': 'url_created'}
+            response.data = {'res': 'url_created',
+                             'url': f'{domain.domain}/{generated_url}'}
 
             return response
 
@@ -174,4 +190,15 @@ def delete_url(request, url_id):
 @api_view(['GET'])
 @permission_classes([AllowAny, ])
 def redirect_url(request, domain, domain_subpart):
-    return Response(status=status.HTTP_200_OK)
+    try:
+        domain = Domain.objects.get(domain=domain)
+        url_destination = URLs.objects.get(domain=domain, url=domain_subpart)
+        url = url_destination.url_destination
+
+        return redirect(url,  permanent=False)
+
+    except (URLs.DoesNotExist, TemplateDoesNotExist):
+        return Response({'reason': 'URL NOT FOUND',
+                         'source': f'{domain}|{domain_subpart}'},
+                        status=status.HTTP_404_NOT_FOUND)
+

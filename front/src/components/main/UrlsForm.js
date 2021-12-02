@@ -74,7 +74,7 @@ class UrlsForm extends Component {
           <input
             type="text"
             name="url_destination"
-            maxLength="200"
+            maxLength="500"
             onChange={this.handleInputChange}
             value={ url_destination }
             />

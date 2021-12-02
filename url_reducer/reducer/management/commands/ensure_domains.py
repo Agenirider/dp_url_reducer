@@ -14,6 +14,7 @@ class Command(BaseCommand):
     help = "Creates available domains"
 
     def handle(self, *args, **options):
+
         for domain in domains:
             Domain.objects.get_or_create(domain=domain)
 

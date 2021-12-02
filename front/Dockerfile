@@ -18,14 +18,15 @@ COPY ./package-lock.json .
 RUN npm i --save-dev
 RUN npm i --save-dev html-webpack-plugin
 
-RUN API_HOST=${API_HOST}/api/v1/ npm run-script build
+RUN API_HOST=${API_HOST} npm run-script build
 
 ### STAGE 2: Production Environment ###
 FROM nginx:1.13.12-alpine
 
+ENV API_HOST=${API_HOST}
+
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY ./nginx/default.conf /etc/nginx/nginx.conf
-COPY ./nginx/robots.txt /usr/share/nginx/html
-COPY ./nginx/errors /usr/share/nginx/errors
+
 
 CMD ["nginx", "-g", "daemon off;"]

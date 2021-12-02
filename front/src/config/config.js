@@ -6,5 +6,5 @@ catch {
   ENV = false
 }
 
-export default ENV || 'http://localhost:8000/';
+export default ENV || 'localhost:8000';
 

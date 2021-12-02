@@ -22,3 +22,6 @@ mysqlclient
 # Celery
 celery
 
+# To allow CORS
+django-cors-headers
+
