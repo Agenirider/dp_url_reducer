@@ -48,7 +48,7 @@ def get_urls_cache_generator():
 
                 except AttributeError:
                     cached_url = URLs.objects.get(url=url)
-                    redis_instance.setex(url, timedelta(minutes=20), cached_url.url_destination)
+                    redis_instance.setex(url, timedelta(minutes=40000), cached_url.url_destination)
 
                 yield cached_url.url_destination
 

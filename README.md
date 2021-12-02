@@ -33,11 +33,28 @@ pip3 install -r requirements.txt
 * запустить npm i
 * запустить npm start
 
+# Запуск в production mode
+- запуск докера
+  * docker-compose up -d --build
+  
+- приложения  
+  * http://app.redirect.link/ - приложение
+  * http://api.redirect.link/admin - административная панель Django
+
+- примечание
+  * в проекте используются тестовые доменные имена, поэтому для корректной работы добавьте в файл C:\Windows\System32\drivers\etc\hosts следующие данные 
+  * 127.0.0.1 api.redirect.link
+  * 127.0.0.1 app.redirect.link
+  * 127.0.0.1 domain1.link
+  * 127.0.0.1 dom123.com
+  * 127.0.0.1 test123.ru
+  * 127.0.0.1 lalala.we
+  * 127.0.0.1 blablabla.com
 
 
 # ENDPOINTS
-1.admin/ - административная панель Django
-2.url_reducer/ - API
+1. admin/ - административная панель Django
+2. url_reducer/ - API
 
 # Работа с API (url_reducer/)
 1. set_url
@@ -64,28 +81,24 @@ pip3 install -r requirements.txt
                          'prev_page': False,
                          'next_page': False}
       * пагинация обрабатывается автоматически
+   + delete_url/1 - 
+     * запрос DELETE
+     * аргумент url_id
+     * пример ответа - статус 200
    
-2. delete_url/1 - 
-   + запрос DELETE
-   + аргумент url_id
-   + пример ответа - статус 200
-   
-3. redirect/domain/domain_subpart - 
+3. redirect/domain/domain_subpart 
   + запрос GET
   + reverse proxy переадресует на url_reducer на URL /url_reducer/redirect/domain/domain_subpart
-  + находит в базе соответвие с внешним URL и переадресовывает на него
+  + находит в базе соответствие с внешним URL и переадресовывает на него
 
 # Запуск задач для тестов
 - celery -A partners worker -l INFO --pool=solo
 - celery -A partners beat -l INFO
+- примечание: для запуска celery нужен действующий redis
 
-# Запуск в production mode
-соотвествие доменных имен (для тестов)
-- proxy - app.redirect.link
-- front - api.redirect.link
 
-  - запуск докера
-  * docker-compose up -d --build
+
+
 
 
 

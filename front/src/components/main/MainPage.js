@@ -52,7 +52,7 @@ class MainPage extends Component {
       <span>Reduced URLs</span>
 
       <div className='dp-test-url-container'>
-        {reduced_urls && <ul>{ reduced_urls.res.map( e=> {  let url = `${e.domain}/${e.url}`;
+        {reduced_urls && <ul>{ reduced_urls.res.map( e=> {  let url = `http://${e.domain}/${e.url}`;
                                                             return <li key={e.url}>
                                                              <div>
                                                                 <div><a href={url}>{url}</a> <GrLink/> {e.url_destination}
