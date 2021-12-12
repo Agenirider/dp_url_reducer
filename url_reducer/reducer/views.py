@@ -9,7 +9,10 @@ from rest_framework.views import APIView
 from utils.user_uuid_handler import user_uuid_handler
 from reducer.serializers import URLsSerializer, URLsDBSerializer
 from reducer.utils import get_urls_cache_generator, short_url_generator
+import logging
 
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 """ Init cache access """
 cashed_urls = get_urls_cache_generator()
@@ -62,6 +65,8 @@ def set_url(request):
             response.status_code = status.HTTP_200_OK
             response.data = {'res': 'url_created',
                              'url': f'{domain.domain}/{generated_url}'}
+
+            logger.info(f'Add new url -> {domain.domain}/{generated_url}')
 
             return response
 
@@ -136,6 +141,7 @@ def redirect_url(request, domain, domain_subpart):
         return redirect(f'https://{url}')
 
     except URLs.DoesNotExist:
+        logger.error('Unknown URL')
         return Response({'reason': 'URL NOT FOUND',
                          'source': f'{domain}/{domain_subpart}'},
                         status=status.HTTP_404_NOT_FOUND)

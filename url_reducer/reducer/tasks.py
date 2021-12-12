@@ -8,4 +8,4 @@ from reducer.models import URLs
 def clear_old_urls():
     today = datetime.now()
     month_ago = (today - timedelta(days=30)).date()
-    URLs.objects.filter(created_lte=month_ago).delete()
+    URLs.objects.filter(created__lte=month_ago).delete()

@@ -35,8 +35,6 @@ if not DEBUG:
         send_default_pii=True
     )
 
-
-
 ALLOWED_HOSTS = ['*']
 
 if not DEBUG:
@@ -47,7 +45,9 @@ if not DEBUG:
             dn = re.sub('\n', '', domain_name)
             ALLOWED_HOSTS.append(dn)
 
-    ALLOWED_HOSTS = ALLOWED_HOSTS + ['api.redirect.link', 'app.redirect.link']
+    ALLOWED_HOSTS = ALLOWED_HOSTS + ['api.redirect.link',
+                                     'app.redirect.link',
+                                     'redirect.link']
 
 # Application definition
 
@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sessions.backends.db',
+    'corsheaders',
     'rest_framework',
     'reducer',
 ]
@@ -134,11 +135,6 @@ if not DEBUG:
     if 'DB_NAME' in os.environ:
         DATABASES['default']["NAME"] = os.environ.get('DB_NAME')
 
-REDIS_HOST = 'localhost'
-REDIS_PORT = 6379
-
-if not DEBUG:
-    REDIS_HOST = 'redis'
 
 # CORS BLOCK
 CORS_ALLOW_ALL_ORIGINS = False
@@ -150,17 +146,37 @@ CORS_ALLOW_METHODS = [
 ]
 
 CORS_ALLOWED_ORIGIN_REGEXES = [
-    r'http://localhost',
-    r"^http://redirect.link",
+    r'localhost',
+    r"redirect.link",
+    r"app.redirect.link",
+    r"api.redirect.link",
 ]
 
+CORS_ORIGIN_REGEX_WHITELIST = (
+    r'http://localhost',
+)
 
 CORS_ALLOWED_ORIGINS = [
     "http://redirect.link",
     "http://app.redirect.link",
     "http://api.redirect.link",
-    "http://domain1.link",
 ]
+
+CORS_ALLOW_HEADERS = [
+    'Access-Control-Allow-Headers',
+    'Access-Control-Allow-Credentials',
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'x-ijt',
+]
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

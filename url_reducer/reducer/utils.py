@@ -8,6 +8,11 @@ from django.conf import settings
 from reducer.models import URLs
 from reducer.serializers import SAMPLE_URL_SYMBOLS
 
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+
 
 def get_urls_cache_generator():
     redis_instance = redis.StrictRedis(host=settings.REDIS_HOST,
@@ -33,6 +38,9 @@ def get_urls_cache_generator():
             url, url_destination = yield
 
             if url and url_destination:
+
+                logger.info(f'Save url {url} to redis')
+
                 redis_instance.setex(url, timedelta(minutes=20), url_destination)
                 yield True
 
@@ -43,6 +51,9 @@ def get_urls_cache_generator():
 
                 except AttributeError:
                     cached_url = URLs.objects.get(url=url)
+
+                    logger.info(f'Save rotten url {url} to redis again')
+
                     redis_instance.setex(url, timedelta(minutes=40000), cached_url.url_destination)
 
                     yield cached_url.url_destination
@@ -81,6 +92,10 @@ def short_url_generator(url=None):
                 attempts += 1
 
                 if attempts > 5:
+
+                    logger.error(f"""Too much attempts to generate URL. \n
+                                     current length {min_url_length} """)
+
                     min_url_length += 1
                     attempts = 0
 
