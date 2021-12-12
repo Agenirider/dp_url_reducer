@@ -6,11 +6,13 @@ from django.test import TestCase
 from django.test import Client
 import sys
 from rest_framework import status
-from reducer.models import Users
+from reducer.models import Users, Domain, URLs
+
 
 BASE_DIR = os.getcwd()
 path_to_domains = os.path.join(BASE_DIR, 'reducer', 'management', 'commands')
 sys.path.append(path_to_domains)
+
 import ensure_domains
 
 c = Client()
@@ -29,12 +31,20 @@ class ReducerTestClass(TestCase):
     def setUpTestData(cls):
         domains = ensure_domains.Command()
         domains.handle()
-
-        user = Users(user_uuid='1111111111111111111')
-        user.save()
         c.cookies = SimpleCookie({'dp_test_user_id': '1111111111111111111'})
 
     def setUp(self):
+        domain = Domain.objects.get(domain='domain1.link')
+        user = Users(user_uuid='1111111111111111111')
+        user.save()
+
+        url = URLs(domain=domain,
+                   url='test_redirect',
+                   url_destination='ya.ru',
+                   user_uuid=user)
+        url.save()
+
+    def test_get_urls(self):
         response = c.get('/url_reducer/get_url/page=0')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -52,10 +62,14 @@ class ReducerTestClass(TestCase):
                           'url': 'dom123.com/vk_anton'}
                          )
 
-    def tearDown(self):
-        response = c.get(f'/url_reducer/redirect/{self.url}')
+    def test_get_redirect(self):
+        response = c.get(f'/url_reducer/redirect/domain1.link/test_redirect')
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
+    def test_delete_url(self):
         r = c.delete(f'/url_reducer/delete_url/1')
         self.assertEqual(r.status_code, status.HTTP_200_OK)
+
+    def tearDown(self):
+        pass
 
