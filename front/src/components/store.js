@@ -3,6 +3,7 @@ import {
   SET_NETWORK_MESSAGE,
   SET_ONLOADING,
   SET_SHOW_NOTIFY_MODAL,
+  GET_DOMAINS
 
   } from './action/actionTypes'
 
@@ -10,7 +11,8 @@ import {
     reduced_urls: false,
     network_message: false,
     onLoading: false,
-    show_notify_modal: false
+    show_notify_modal: false,
+    domains: false
 
   }
 
@@ -40,6 +42,12 @@ import {
         return {
           ...state,
           show_notify_modal: action.payload
+        };
+
+      case GET_DOMAINS:
+        return {
+          ...state,
+          domains: action.payload
         };
 
       default:

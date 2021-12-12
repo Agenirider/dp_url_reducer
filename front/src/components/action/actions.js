@@ -4,7 +4,8 @@ import {
     GET_REDUCED_URLS,
     SET_NETWORK_MESSAGE,
     SET_ONLOADING,
-    SET_SHOW_NOTIFY_MODAL
+    SET_SHOW_NOTIFY_MODAL,
+    GET_DOMAINS 
 } from "./actionTypes";
 
 
@@ -45,14 +46,28 @@ const api_interactions_interceptor = (dispatch) => {
     );
 };
 
-export const get_reduced_urls = (page_num) => dispatch => {
+export const get_domains = () => dispatch => {
     api_interactions_interceptor(dispatch)
-    API_client.get(`http://${BASE_URL}/url_reducer/get_url/page=${page_num}`)
+    API_client.get(`http://${BASE_URL}/url_reducer/get_domains`)
       .then((response) => {
-          dispatch({ type: GET_REDUCED_URLS, payload: response.data });
+          dispatch({ type: GET_DOMAINS, payload: response.data });
       }
     );
 }
+
+
+export const get_reduced_urls = (page_num) => dispatch => {
+  api_interactions_interceptor(dispatch)
+
+  let pn = page_num > 1 ? `page%3D0?&page=${page_num}` : 'page=0'
+
+  API_client.get(`http://${BASE_URL}/url_reducer/get_url/${pn}`)
+    .then((response) => {
+        dispatch({ type: GET_REDUCED_URLS, payload: response.data });
+    }
+  );
+}
+
 
 export const delete_reduced_urls = (url_id) => dispatch => {
   api_interactions_interceptor(dispatch)

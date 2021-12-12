@@ -8,3 +8,5 @@ RUN mkdir -p /vol/static
 RUN chmod -R 755 /vol/static
 
 USER nginx
+
+CMD ["nginx", "-g", "daemon off;"]

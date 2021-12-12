@@ -14,7 +14,7 @@ class MainPage extends Component {
 
 
   state = {
-    page_num: 0
+    page_num: 1
   }
 
   componentDidMount = () => {
@@ -48,14 +48,18 @@ class MainPage extends Component {
     <React.Fragment>
 
       <Header location={'mainpage'}/>
-      
-      <span>Reduced URLs</span>
+
 
       <div className='dp-test-url-container'>
-        {reduced_urls && <ul>{ reduced_urls.res.map( e=> {  let url = `http://${e.domain}/${e.url}`;
+
+        <span>Reduced URLs</span>
+        <br/>
+        <span><b>URL {reduced_urls.count}</b></span>
+
+        {reduced_urls && <ul>{ reduced_urls.results.map( e=> {  let url = `http://${e.domain}/${e.url}`;
                                                             return <li key={e.url}>
                                                              <div>
-                                                                <div><a href={url}>{url}</a> <GrLink/> {e.url_destination}
+                                                                <div>{e.id}    <a href={url}>{url}</a> <GrLink/> {e.url_destination}
                                                                   <div onClick={() => delete_reduced_urls(e.id)}><AiFillDelete/></div></div>
                                                                 
                                                              </div>
@@ -64,17 +68,17 @@ class MainPage extends Component {
         <table>
           <tbody>
           <tr>
-            <td onClick={()=> { reduced_urls.prev_page && this.setPageNum('decrease')}}
-              className={reduced_urls.prev_page ? 'db-test-btn-active' : 'db-test-btn-inactive'}>
+            <td onClick={()=> { reduced_urls.previous && this.setPageNum('decrease')}}
+              className={reduced_urls.previous ? 'db-test-btn-active' : 'db-test-btn-inactive'}>
               Назад
             </td>
 
             <td style={{ padding: '10px'}}>
-              Страница: {page_num + 1}
+              Страница: {page_num}
             </td>
 
-            <td onClick={()=> { reduced_urls.next_page && this.setPageNum('increase')} }
-              className={ reduced_urls.next_page ? 'db-test-btn-active' : 'db-test-btn-inactive'}>
+            <td onClick={()=> { reduced_urls.next && this.setPageNum('increase')} }
+              className={ reduced_urls.next ? 'db-test-btn-active' : 'db-test-btn-inactive'}>
               Вперед
             </td>
           </tr>

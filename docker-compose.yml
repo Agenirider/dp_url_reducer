@@ -116,7 +116,9 @@ services:
   reverse_proxy:
     container_name: revers_proxy
     build:
-      context: ./revers_proxy
+      context: .
+      dockerfile: revers_proxy/Dockerfile
+    command: /bin/bash entrypoint.sh
     restart: unless-stopped
     expose:
       - "80"

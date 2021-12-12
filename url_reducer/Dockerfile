@@ -41,7 +41,7 @@ RUN adduser -D user \
     && chown -R user:user /vol
 
 
-RUN python manage.py test
+#RUN python manage.py test
 
 USER user
 

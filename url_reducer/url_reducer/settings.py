@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
+import re
 from pathlib import Path
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-!bueb7%*g4bbuy#eyc-sm#d7r8a-w@52^89s%0t&k*8l=zq+d&
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.environ.get("DEBUG", default=1)))
-
+#
 if not DEBUG:
     sentry_sdk.init(
         dsn="https://6b1dcfb39fbc4c98b4397fc9645cefc6@o589561.ingest.sentry.io/6064961",
@@ -34,18 +35,19 @@ if not DEBUG:
         send_default_pii=True
     )
 
-if DEBUG:
-    ALLOWED_HOSTS = ['*']
-else:
-    ALLOWED_HOSTS = [
-        'domain1.link',
-        'dom123.com',
-        'test123.ru',
-        'lalala.we',
-        'blablabla.com',
-        'api.redirect.link',
-        'app.redirect.link'
-    ]
+
+
+ALLOWED_HOSTS = ['*']
+
+if not DEBUG:
+    ALLOWED_HOSTS = []
+    DOMAINS_FILE = os.path.join(BASE_DIR, 'domains')
+    with open(DOMAINS_FILE, 'r') as df:
+        for domain_name in df:
+            dn = re.sub('\n', '', domain_name)
+            ALLOWED_HOSTS.append(dn)
+
+    ALLOWED_HOSTS = ALLOWED_HOSTS + ['api.redirect.link', 'app.redirect.link']
 
 # Application definition
 
@@ -60,6 +62,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'reducer',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -141,34 +148,12 @@ CORS_ALLOW_METHODS = [
     'POST',
     'GET',
 ]
-#
-# CORS_ALLOW_HEADERS = [
-#     'Access-Control-Allow-Headers',
-#     'Access-Control-Allow-Credentials',
-#     'accept',
-#     'accept-encoding',
-#     'authorization',
-#     'content-type',
-#     'dnt',
-#     'origin',
-#     'user-agent',
-#     'x-csrftoken',
-#     'x-requested-with',
-#     'x-ijt',
-# ]
-# #
+
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r'http://localhost',
     r"^http://redirect.link",
 ]
 
-# if DEBUG:
-#     # add jetbrains debugging headers (module JavaScript Debug)
-#     from corsheaders.defaults import default_headers
-#
-#     CORS_ALLOW_HEADERS = default_headers + (
-#         'x-ijt',
-#    )
 
 CORS_ALLOWED_ORIGINS = [
     "http://redirect.link",
