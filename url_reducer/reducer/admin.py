@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
 
 from reducer.models import Domain, Users, URLs
 
@@ -26,3 +27,6 @@ class URLSAdmin(admin.ModelAdmin):
                     'url_destination',
                     'created'
                     )
+
+
+admin.site.unregister(Group)
